@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Journal</title>
+    <!-- Add Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;  /* Updated font family */
         }
 
         body {
@@ -28,8 +30,9 @@
             text-align: center;
             margin-bottom: 2rem;
             font-size: 2.5rem;
-            font-weight: 700;  /* Made bold */
-            text-transform: uppercase;  /* Made uppercase */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;  /* Added for Inter font */
         }
 
         .input-container {
@@ -51,6 +54,7 @@
             font-size: 1rem;
             resize: vertical;
             margin-bottom: 1rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;  /* Updated font family */
         }
 
         textarea:focus {
@@ -66,6 +70,7 @@
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.3s ease;
+            font-weight: 500;  /* Added for Inter font */
         }
 
         button:hover {
@@ -96,9 +101,10 @@
 
         .entry-text {
             line-height: 1.6;
-            margin-right: 80px;  /* Increased to accommodate edit button */
+            margin-right: 80px;
             color: #002652;
             font-size: 1.05rem;
+            font-weight: 400;  /* Added for Inter font */
         }
 
         .action-buttons {
@@ -138,7 +144,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -165,6 +170,7 @@
             margin-bottom: 1rem;
             font-size: 1.5rem;
             font-weight: 600;
+            letter-spacing: -0.01em;  /* Added for Inter font */
         }
 
         @media (max-width: 600px) {
