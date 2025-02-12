@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Journal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #F9C7BE;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #28405C;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .input-container {
+            background-color: #EDADA3;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #28405C;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        textarea:focus {
+            outline: 2px solid #94C4C1;
+        }
+
+        button {
+            background-color: #42899B;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #28405C;
+        }
+
+        .entries {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .entry {
+            background-color: #94C4C1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: #28405C;
+        }
+
+        .entry-date {
+            font-size: 0.9rem;
+            color: #28405C;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .entry-text {
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Journal</h1>
+        
+        <div class="input-container">
+            <textarea id="journalInput" placeholder="Write your thoughts..."></textarea>
+            <button onclick="saveEntry()">Save Entry</button>
+        </div>
+
+        <div id="entriesContainer" class="entries">
+            <!-- Journal entries will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        let journalEntries = [];
+
+        // Load entries when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            getLocalStorage();
+        });
+
+        function getLocalStorage() {
+            const storedEntries = localStorage.getItem('journal');
+            if (storedEntries) {
+                journalEntries = JSON.parse(storedEntries);
+                displayEntries();
+            }
+        }
+
+        function saveEntry() {
+            const input = document.getElementById('journalInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                const now = new Date();
+                const entry = {
+                    date: now.toLocaleString(),
+                    text: text
+                };
+
+                journalEntries.unshift(entry); // Add to beginning of array
+                localStorage.setItem('journal', JSON.stringify(journalEntries));
+                
+                input.value = ''; // Clear input
+                displayEntries();
+            }
+        }
+
+        function displayEntries() {
+            const container = document.getElementById('entriesContainer');
+            container.innerHTML = ''; // Clear container
+
+            journalEntries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'entry';
+                entryElement.innerHTML = `
+                    <div class="entry-date">${entry.date}</div>
+                    <div class="entry-text">${entry.text}</div>
+                `;
+                container.appendChild(entryElement);
+            });
+        }
+
+        // Allow saving with Enter key
+        document.getElementById('journalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                saveEntry();
+            }
+        });
+    </script>
+</body>
+</html>
