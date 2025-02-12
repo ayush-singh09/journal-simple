@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Journal</title>
     <style>
+        /* Previous CSS remains exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +14,7 @@
         }
 
         body {
-            background-color: #F9C7BE;
+            background-color: #E6EEF2;
             min-height: 100vh;
             padding: 2rem;
         }
@@ -24,7 +25,7 @@
         }
 
         h1 {
-            color: #28405C;
+            color: #002652;
             text-align: center;
             margin-bottom: 2rem;
             font-size: 2.5rem;
@@ -32,7 +33,7 @@
         }
 
         .input-container {
-            background-color: #EDADA3;
+            background-color: #98B6C9;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -46,18 +47,18 @@
             border: none;
             border-radius: 8px;
             background-color: #fff;
-            color: #28405C;
+            color: #002652;
             font-size: 1rem;
             resize: vertical;
             margin-bottom: 1rem;
         }
 
         textarea:focus {
-            outline: 2px solid #94C4C1;
+            outline: 2px solid #005C99;
         }
 
         button {
-            background-color: #42899B;
+            background-color: #005C99;
             color: white;
             border: none;
             padding: 0.8rem 1.5rem;
@@ -68,7 +69,7 @@
         }
 
         button:hover {
-            background-color: #28405C;
+            background-color: #002652;
         }
 
         .entries {
@@ -78,21 +79,58 @@
         }
 
         .entry {
-            background-color: #94C4C1;
+            background-color: #98B6C9;
             padding: 1.5rem;
             border-radius: 12px;
-            color: #28405C;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .entry-date {
             font-size: 0.9rem;
-            color: #28405C;
+            color: #002652;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .entry-text {
-            line-height: 1.5;
+            line-height: 1.6;
+            margin-right: 40px;
+            color: #002652;
+            font-size: 1.05rem;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: #002652;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #001B3B;
+        }
+
+        .entry-id {
+            font-size: 0.8rem;
+            color: #002652;
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
         @media (max-width: 600px) {
@@ -122,10 +160,17 @@
 
     <script>
         let journalEntries = [];
+        let currentId = 1;
 
         // Load entries when page loads
         document.addEventListener('DOMContentLoaded', () => {
             getLocalStorage();
+            // Also get the last used ID to continue from there
+            const lastEntry = journalEntries[0];
+            if (lastEntry) {
+                const lastId = parseInt(lastEntry.id.split('_')[1]);
+                currentId = lastId + 1;
+            }
         });
 
         function getLocalStorage() {
@@ -136,6 +181,14 @@
             }
         }
 
+        function saveToLocalStorage() {
+            localStorage.setItem('journal', JSON.stringify(journalEntries));
+        }
+
+        function generateUniqueId() {
+            return `journal_${currentId++}`;
+        }
+
         function saveEntry() {
             const input = document.getElementById('journalInput');
             const text = input.value.trim();
@@ -143,16 +196,22 @@
             if (text) {
                 const now = new Date();
                 const entry = {
+                    id: generateUniqueId(),
                     date: now.toLocaleString(),
                     text: text
                 };
 
                 journalEntries.unshift(entry); // Add to beginning of array
-                localStorage.setItem('journal', JSON.stringify(journalEntries));
-                
+                saveToLocalStorage(); // Save to localStorage
                 input.value = ''; // Clear input
                 displayEntries();
             }
+        }
+
+        function deleteEntry(id) {
+            journalEntries = journalEntries.filter(entry => entry.id !== id);
+            saveToLocalStorage(); // Save to localStorage after deletion
+            displayEntries();
         }
 
         function displayEntries() {
@@ -163,8 +222,10 @@
                 const entryElement = document.createElement('div');
                 entryElement.className = 'entry';
                 entryElement.innerHTML = `
+                    <div class="entry-id">ID: ${entry.id}</div>
                     <div class="entry-date">${entry.date}</div>
                     <div class="entry-text">${entry.text}</div>
+                    <button class="delete-btn" onclick="deleteEntry('${entry.id}')">×</button>
                 `;
                 container.appendChild(entryElement);
             });
