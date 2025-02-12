@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Journal</title>
     <style>
-        /* Previous CSS remains exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -29,7 +28,8 @@
             text-align: center;
             margin-bottom: 2rem;
             font-size: 2.5rem;
-            font-weight: 300;
+            font-weight: 700;  /* Made bold */
+            text-transform: uppercase;  /* Made uppercase */
         }
 
         .input-container {
@@ -96,15 +96,20 @@
 
         .entry-text {
             line-height: 1.6;
-            margin-right: 40px;
+            margin-right: 80px;  /* Increased to accommodate edit button */
             color: #002652;
             font-size: 1.05rem;
         }
 
-        .delete-btn {
+        .action-buttons {
             position: absolute;
             top: 1.5rem;
             right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .delete-btn, .edit-btn {
             background-color: #002652;
             color: white;
             border: none;
@@ -120,7 +125,7 @@
             transition: background-color 0.3s ease;
         }
 
-        .delete-btn:hover {
+        .delete-btn:hover, .edit-btn:hover {
             background-color: #001B3B;
         }
 
@@ -131,6 +136,35 @@
             margin-bottom: 0.3rem;
             font-weight: 500;
             letter-spacing: 0.3px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #E6EEF2;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-title {
+            color: #002652;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
         @media (max-width: 600px) {
@@ -158,9 +192,20 @@
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">Edit Entry</div>
+            <textarea id="editInput" placeholder="Edit your thoughts..."></textarea>
+            <button onclick="updateEntry()">Update</button>
+            <button onclick="closeModal()" style="background-color: #666;">Cancel</button>
+        </div>
+    </div>
+
     <script>
         let journalEntries = [];
         let currentId = 1;
+        let currentEditId = null;
 
         // Load entries when page loads
         document.addEventListener('DOMContentLoaded', () => {
@@ -201,22 +246,51 @@
                     text: text
                 };
 
-                journalEntries.unshift(entry); // Add to beginning of array
-                saveToLocalStorage(); // Save to localStorage
-                input.value = ''; // Clear input
+                journalEntries.unshift(entry);
+                saveToLocalStorage();
+                input.value = '';
                 displayEntries();
             }
         }
 
         function deleteEntry(id) {
             journalEntries = journalEntries.filter(entry => entry.id !== id);
-            saveToLocalStorage(); // Save to localStorage after deletion
+            saveToLocalStorage();
             displayEntries();
+        }
+
+        function editEntry(id) {
+            const entry = journalEntries.find(entry => entry.id === id);
+            if (entry) {
+                currentEditId = id;
+                document.getElementById('editInput').value = entry.text;
+                document.getElementById('editModal').style.display = 'flex';
+            }
+        }
+
+        function updateEntry() {
+            if (currentEditId) {
+                const newText = document.getElementById('editInput').value.trim();
+                if (newText) {
+                    const entryIndex = journalEntries.findIndex(entry => entry.id === currentEditId);
+                    if (entryIndex !== -1) {
+                        journalEntries[entryIndex].text = newText;
+                        saveToLocalStorage();
+                        displayEntries();
+                        closeModal();
+                    }
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditId = null;
         }
 
         function displayEntries() {
             const container = document.getElementById('entriesContainer');
-            container.innerHTML = ''; // Clear container
+            container.innerHTML = '';
 
             journalEntries.forEach(entry => {
                 const entryElement = document.createElement('div');
@@ -225,7 +299,10 @@
                     <div class="entry-id">ID: ${entry.id}</div>
                     <div class="entry-date">${entry.date}</div>
                     <div class="entry-text">${entry.text}</div>
-                    <button class="delete-btn" onclick="deleteEntry('${entry.id}')">×</button>
+                    <div class="action-buttons">
+                        <button class="edit-btn" onclick="editEntry('${entry.id}')">✎</button>
+                        <button class="delete-btn" onclick="deleteEntry('${entry.id}')">×</button>
+                    </div>
                 `;
                 container.appendChild(entryElement);
             });
@@ -236,6 +313,13 @@
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 saveEntry();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
             }
         });
     </script>
